@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Image;
@@ -49,6 +50,7 @@ class ImagePainter extends StatefulWidget {
     this.optionColor,
     this.onUndo,
     this.onClear,
+    this.quarterTurns,
   }) : super(key: key);
 
   ///Constructor for loading image from network url.
@@ -187,6 +189,7 @@ class ImagePainter extends StatefulWidget {
     Color? optionColor,
     VoidCallback? onUndo,
     VoidCallback? onClear,
+    int? quarterTurns,
   }) {
     return ImagePainter._(
       controller: controller,
@@ -213,6 +216,7 @@ class ImagePainter extends StatefulWidget {
       optionColor: optionColor,
       onUndo: onUndo,
       onClear: onClear,
+      quarterTurns: quarterTurns,
     );
   }
 
@@ -401,6 +405,8 @@ class ImagePainter extends StatefulWidget {
 
   final VoidCallback? onClear;
 
+  final int? quarterTurns;
+
   @override
   ImagePainterState createState() => ImagePainterState();
 }
@@ -548,30 +554,33 @@ class ImagePainterState extends State<ImagePainter> {
         children: [
           if (widget.controlsAtTop && widget.showControls) _buildControls(),
           Expanded(
-            child: FittedBox(
-              alignment: FractionalOffset.center,
-              child: ClipRect(
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return InteractiveViewer(
-                      transformationController: _transformationController,
-                      maxScale: 2.4,
-                      minScale: 1,
-                      panEnabled: _controller.mode == PaintMode.none,
-                      scaleEnabled: widget.isScalable!,
-                      onInteractionUpdate: _scaleUpdateGesture,
-                      onInteractionEnd: _scaleEndGesture,
-                      child: CustomPaint(
-                        size: imageSize,
-                        willChange: true,
-                        isComplex: true,
-                        painter: DrawImage(
-                          controller: _controller,
+            child: RotatedBox(
+              quarterTurns: widget.quarterTurns ?? 0,
+              child: FittedBox(
+                alignment: FractionalOffset.center,
+                child: ClipRect(
+                  child: AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      return InteractiveViewer(
+                        transformationController: _transformationController,
+                        maxScale: 2.4,
+                        minScale: 1,
+                        panEnabled: _controller.mode == PaintMode.none,
+                        scaleEnabled: widget.isScalable!,
+                        onInteractionUpdate: _scaleUpdateGesture,
+                        onInteractionEnd: _scaleEndGesture,
+                        child: CustomPaint(
+                          size: imageSize,
+                          willChange: true,
+                          isComplex: true,
+                          painter: DrawImage(
+                            controller: _controller,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

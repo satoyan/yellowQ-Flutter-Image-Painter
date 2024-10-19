@@ -33,7 +33,7 @@ class DrawImage extends CustomPainter {
       ),
     );
 
-    ///paints all the previoud paintInfo history recorded on [PaintHistory]
+    ///paints all the previous paintInfo history recorded on [PaintHistory]
     for (final item in _controller.paintHistory) {
       final _offset = item.offsets;
       final _painter = item.paint;
