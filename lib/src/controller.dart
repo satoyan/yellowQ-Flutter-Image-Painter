@@ -18,6 +18,7 @@ class ImagePainterController extends ChangeNotifier {
   final List<Offset?> _offsets = [];
 
   final List<PaintInfo> _paintHistory = [];
+  final List<PaintInfo> _undotHistory = [];
 
   Offset? _start, _end;
 
@@ -90,7 +91,14 @@ class ImagePainterController extends ChangeNotifier {
 
   void undo() {
     if (_paintHistory.isNotEmpty) {
-      _paintHistory.removeLast();
+      _undotHistory.add(_paintHistory.removeLast());
+      notifyListeners();
+    }
+  }
+
+  void redo() {
+    if (_undotHistory.isNotEmpty) {
+      _paintHistory.add(_undotHistory.removeLast());
       notifyListeners();
     }
   }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Image;
@@ -49,8 +48,10 @@ class ImagePainter extends StatefulWidget {
     this.optionUnselectedColor,
     this.optionColor,
     this.onUndo,
+    this.onRedo,
     this.onClear,
     this.quarterTurns,
+    this.contentPadding,
   }) : super(key: key);
 
   ///Constructor for loading image from network url.
@@ -78,7 +79,10 @@ class ImagePainter extends StatefulWidget {
     Color? unselectedColor,
     Color? optionColor,
     VoidCallback? onUndo,
+    VoidCallback? onRedo,
     VoidCallback? onClear,
+    int? quarterTurns,
+    EdgeInsets? contentPadding,
   }) {
     return ImagePainter._(
       key: key,
@@ -104,7 +108,10 @@ class ImagePainter extends StatefulWidget {
       optionUnselectedColor: unselectedColor,
       optionColor: optionColor,
       onUndo: onUndo,
+      onRedo: onRedo,
       onClear: onClear,
+      quarterTurns: quarterTurns,
+      contentPadding: contentPadding,
     );
   }
 
@@ -133,7 +140,10 @@ class ImagePainter extends StatefulWidget {
     Color? unselectedColor,
     Color? optionColor,
     VoidCallback? onUndo,
+    VoidCallback? onRedo,
     VoidCallback? onClear,
+    int? quarterTurns,
+    EdgeInsets? contentPadding,
   }) {
     return ImagePainter._(
       controller: controller,
@@ -159,7 +169,10 @@ class ImagePainter extends StatefulWidget {
       optionUnselectedColor: unselectedColor,
       optionColor: optionColor,
       onUndo: onUndo,
+      onRedo: onRedo,
       onClear: onClear,
+      quarterTurns: quarterTurns,
+      contentPadding: contentPadding,
     );
   }
 
@@ -188,8 +201,10 @@ class ImagePainter extends StatefulWidget {
     Color? unselectedColor,
     Color? optionColor,
     VoidCallback? onUndo,
+    VoidCallback? onRedo,
     VoidCallback? onClear,
     int? quarterTurns,
+    EdgeInsets? contentPadding,
   }) {
     return ImagePainter._(
       controller: controller,
@@ -215,8 +230,10 @@ class ImagePainter extends StatefulWidget {
       optionUnselectedColor: unselectedColor,
       optionColor: optionColor,
       onUndo: onUndo,
+      onRedo: onRedo,
       onClear: onClear,
       quarterTurns: quarterTurns,
+      contentPadding: contentPadding,
     );
   }
 
@@ -245,7 +262,10 @@ class ImagePainter extends StatefulWidget {
     Color? unselectedColor,
     Color? optionColor,
     VoidCallback? onUndo,
+    VoidCallback? onRedo,
     VoidCallback? onClear,
+    int? quarterTurns,
+    EdgeInsets? contentPadding,
   }) {
     return ImagePainter._(
       controller: controller,
@@ -271,7 +291,10 @@ class ImagePainter extends StatefulWidget {
       optionUnselectedColor: unselectedColor,
       optionColor: optionColor,
       onUndo: onUndo,
+      onRedo: onRedo,
       onClear: onClear,
+      quarterTurns: quarterTurns,
+      contentPadding: contentPadding,
     );
   }
 
@@ -298,7 +321,9 @@ class ImagePainter extends StatefulWidget {
     Color? unselectedColor,
     Color? optionColor,
     VoidCallback? onUndo,
+    VoidCallback? onRedo,
     VoidCallback? onClear,
+    EdgeInsets? contentPadding,
   }) {
     return ImagePainter._(
       controller: controller,
@@ -324,7 +349,9 @@ class ImagePainter extends StatefulWidget {
       optionUnselectedColor: unselectedColor,
       optionColor: optionColor,
       onUndo: onUndo,
+      onRedo: onRedo,
       onClear: onClear,
+      contentPadding: contentPadding,
     );
   }
 
@@ -402,10 +429,13 @@ class ImagePainter extends StatefulWidget {
   final Color? optionColor;
 
   final VoidCallback? onUndo;
+  final VoidCallback? onRedo;
 
   final VoidCallback? onClear;
 
   final int? quarterTurns;
+
+  final EdgeInsets? contentPadding;
 
   @override
   ImagePainterState createState() => ImagePainterState();
@@ -547,12 +577,16 @@ class ImagePainterState extends State<ImagePainter> {
 
   ///paints image on given constrains for drawing if image is not null.
   Widget _paintImage() {
+    debugPrint('quarterTurns: ${widget.quarterTurns}');
     return Container(
       height: widget.height ?? double.maxFinite,
       width: widget.width ?? double.maxFinite,
       child: Column(
         children: [
-          if (widget.controlsAtTop && widget.showControls) _buildControls(),
+          if (widget.controlsAtTop && widget.showControls) ...[
+            _buildControls(),
+            const SizedBox(height: 8),
+          ],
           Expanded(
             child: RotatedBox(
               quarterTurns: widget.quarterTurns ?? 0,
@@ -585,7 +619,10 @@ class ImagePainterState extends State<ImagePainter> {
               ),
             ),
           ),
-          if (!widget.controlsAtTop && widget.showControls) _buildControls(),
+          if (!widget.controlsAtTop && widget.showControls) ...[
+            const SizedBox(height: 8),
+            _buildControls(),
+          ],
           SizedBox(height: MediaQuery.of(context).padding.bottom)
         ],
       ),
@@ -911,23 +948,34 @@ class ImagePainterState extends State<ImagePainter> {
               }
             },
           ),
-          const Spacer(),
           IconButton(
             tooltip: textDelegate.undo,
-            icon: widget.undoIcon ?? Icon(Icons.reply, color: Colors.grey[700]),
+            icon: widget.undoIcon ?? Icon(Icons.undo, color: Colors.grey[700]),
             onPressed: () {
               widget.onUndo?.call();
               _controller.undo();
             },
           ),
           IconButton(
-            tooltip: textDelegate.clearAllProgress,
-            icon: widget.clearAllIcon ??
-                Icon(Icons.clear, color: Colors.grey[700]),
+            tooltip: textDelegate.redo,
+            icon: Icon(Icons.redo, color: Colors.grey[700]),
             onPressed: () {
-              widget.onClear?.call();
-              _controller.clear();
+              widget.onRedo?.call();
+              _controller.redo();
             },
+          ),
+          const Spacer(),
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              tooltip: textDelegate.clearAllProgress,
+              icon: widget.clearAllIcon ??
+                  Icon(Icons.clear, color: Colors.grey[700]),
+              onPressed: () {
+                widget.onClear?.call();
+                _controller.clear();
+              },
+            ),
           ),
         ],
       ),
