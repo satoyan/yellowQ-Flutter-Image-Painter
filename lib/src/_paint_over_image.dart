@@ -34,6 +34,7 @@ class ImagePainter extends StatefulWidget {
     this.clearAllIcon,
     this.colorIcon,
     this.undoIcon,
+    this.redoIcon,
     this.isSignature = false,
     this.controlsAtTop = true,
     this.signatureBackgroundColor = Colors.white,
@@ -66,6 +67,7 @@ class ImagePainter extends StatefulWidget {
     List<Color>? colors,
     Widget? brushIcon,
     Widget? undoIcon,
+    Widget? redoIcon,
     Widget? clearAllIcon,
     Widget? colorIcon,
     ValueChanged<PaintMode>? onPaintModeChanged,
@@ -95,6 +97,7 @@ class ImagePainter extends StatefulWidget {
       colors: colors,
       brushIcon: brushIcon,
       undoIcon: undoIcon,
+      redoIcon: redoIcon,
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
       onPaintModeChanged: onPaintModeChanged,
@@ -127,6 +130,7 @@ class ImagePainter extends StatefulWidget {
     List<Color>? colors,
     Widget? brushIcon,
     Widget? undoIcon,
+    Widget? redoIcon,
     Widget? clearAllIcon,
     Widget? colorIcon,
     ValueChanged<PaintMode>? onPaintModeChanged,
@@ -156,6 +160,7 @@ class ImagePainter extends StatefulWidget {
       colors: colors,
       brushIcon: brushIcon,
       undoIcon: undoIcon,
+      redoIcon: redoIcon,
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
       onPaintModeChanged: onPaintModeChanged,
@@ -188,6 +193,7 @@ class ImagePainter extends StatefulWidget {
     List<Color>? colors,
     Widget? brushIcon,
     Widget? undoIcon,
+    Widget? redoIcon,
     Widget? clearAllIcon,
     Widget? colorIcon,
     ValueChanged<PaintMode>? onPaintModeChanged,
@@ -217,6 +223,7 @@ class ImagePainter extends StatefulWidget {
       isScalable: scalable ?? false,
       brushIcon: brushIcon,
       undoIcon: undoIcon,
+      redoIcon: redoIcon,
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
       onPaintModeChanged: onPaintModeChanged,
@@ -249,6 +256,7 @@ class ImagePainter extends StatefulWidget {
     List<Color>? colors,
     Widget? brushIcon,
     Widget? undoIcon,
+    Widget? redoIcon,
     Widget? clearAllIcon,
     Widget? colorIcon,
     ValueChanged<PaintMode>? onPaintModeChanged,
@@ -278,6 +286,7 @@ class ImagePainter extends StatefulWidget {
       colors: colors,
       brushIcon: brushIcon,
       undoIcon: undoIcon,
+      redoIcon: redoIcon,
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
       onPaintModeChanged: onPaintModeChanged,
@@ -308,6 +317,7 @@ class ImagePainter extends StatefulWidget {
     List<Color>? colors,
     Widget? brushIcon,
     Widget? undoIcon,
+    Widget? redoIcon,
     Widget? clearAllIcon,
     Widget? colorIcon,
     ValueChanged<PaintMode>? onPaintModeChanged,
@@ -336,6 +346,7 @@ class ImagePainter extends StatefulWidget {
       signatureBackgroundColor: signatureBgColor ?? Colors.white,
       brushIcon: brushIcon,
       undoIcon: undoIcon,
+      redoIcon: redoIcon,
       colorIcon: colorIcon,
       clearAllIcon: clearAllIcon,
       onPaintModeChanged: onPaintModeChanged,
@@ -401,6 +412,9 @@ class ImagePainter extends StatefulWidget {
   ///Widget for Undo last action on control bar.
   final Widget? undoIcon;
 
+  ///Widget for Redo last action on control bar.
+  final Widget? redoIcon;
+
   ///Widget for clearing all actions on control bar.
   final Widget? clearAllIcon;
 
@@ -433,8 +447,10 @@ class ImagePainter extends StatefulWidget {
 
   final VoidCallback? onClear;
 
+  // The number of clockwise quarter turns only the image should be rotated.
   final int? quarterTurns;
 
+  // Padding for image content
   final EdgeInsets? contentPadding;
 
   @override
@@ -577,7 +593,6 @@ class ImagePainterState extends State<ImagePainter> {
 
   ///paints image on given constrains for drawing if image is not null.
   Widget _paintImage() {
-    debugPrint('quarterTurns: ${widget.quarterTurns}');
     return Container(
       height: widget.height ?? double.maxFinite,
       width: widget.width ?? double.maxFinite,
@@ -585,42 +600,41 @@ class ImagePainterState extends State<ImagePainter> {
         children: [
           if (widget.controlsAtTop && widget.showControls) ...[
             _buildControls(),
-            const SizedBox(height: 8),
           ],
           Expanded(
-            child: RotatedBox(
-              quarterTurns: widget.quarterTurns ?? 0,
-              child: FittedBox(
-                alignment: FractionalOffset.center,
-                child: ClipRect(
-                  child: AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, child) {
-                      return InteractiveViewer(
-                        transformationController: _transformationController,
-                        maxScale: 2.4,
-                        minScale: 1,
-                        panEnabled: _controller.mode == PaintMode.none,
-                        scaleEnabled: widget.isScalable!,
-                        onInteractionUpdate: _scaleUpdateGesture,
-                        onInteractionEnd: _scaleEndGesture,
-                        child: CustomPaint(
-                          size: imageSize,
-                          willChange: true,
-                          isComplex: true,
-                          painter: DrawImage(
-                            controller: _controller,
+            child: Padding(
+              padding: widget.contentPadding ?? EdgeInsets.zero,
+              child: RotatedBox(
+                quarterTurns: widget.quarterTurns ?? 0,
+                child: FittedBox(
+                  alignment: FractionalOffset.center,
+                  child: ClipRect(
+                    child: AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) {
+                        return InteractiveViewer(
+                          transformationController: _transformationController,
+                          maxScale: 2.4,
+                          minScale: 1,
+                          panEnabled: _controller.mode == PaintMode.none,
+                          scaleEnabled: widget.isScalable!,
+                          onInteractionUpdate: _scaleUpdateGesture,
+                          onInteractionEnd: _scaleEndGesture,
+                          child: CustomPaint(
+                            size: imageSize,
+                            willChange: true,
+                            isComplex: true,
+                            painter: DrawImage(controller: _controller),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
           ),
           if (!widget.controlsAtTop && widget.showControls) ...[
-            const SizedBox(height: 8),
             _buildControls(),
           ],
           SizedBox(height: MediaQuery.of(context).padding.bottom)
@@ -958,7 +972,7 @@ class ImagePainterState extends State<ImagePainter> {
           ),
           IconButton(
             tooltip: textDelegate.redo,
-            icon: Icon(Icons.redo, color: Colors.grey[700]),
+            icon: widget.redoIcon ?? Icon(Icons.redo, color: Colors.grey[700]),
             onPressed: () {
               widget.onRedo?.call();
               _controller.redo();
