@@ -1,4 +1,4 @@
-import 'package:image_painter/image_painter.dart';
+import 'package:image_painter_rotate/image_painter_rotate.dart';
 
 class DutchTextDelegate implements TextDelegate {
   @override
@@ -45,4 +45,7 @@ class DutchTextDelegate implements TextDelegate {
 
   @override
   String get fill => "Vullen";
+
+  @override
+  String get redo => "Opnieuw doen";
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../image_painter.dart';
+import '../../image_painter_rotate.dart';
 
 class SelectionItems extends StatelessWidget {
   final bool isSelected;

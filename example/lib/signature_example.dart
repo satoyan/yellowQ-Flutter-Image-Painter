@@ -1,16 +1,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_painter/image_painter.dart';
+import 'package:image_painter_rotate/image_painter_rotate.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
 class SignatureExample extends StatefulWidget {
+  const SignatureExample({super.key});
+
   @override
-  _SignatureExampleState createState() => _SignatureExampleState();
+  SignatureExampleState createState() => SignatureExampleState();
 }
 
-class _SignatureExampleState extends State<SignatureExample> {
+class SignatureExampleState extends State<SignatureExample> {
   final _controller = ImagePainterController();
   @override
   Widget build(BuildContext context) {
@@ -28,8 +30,8 @@ class _SignatureExampleState extends State<SignatureExample> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.save),
         onPressed: saveImage,
+        child: const Icon(Icons.save),
       ),
     );
   }
@@ -39,9 +41,13 @@ class _SignatureExampleState extends State<SignatureExample> {
     final directory = (await getApplicationDocumentsDirectory()).path;
     await Directory('$directory/sample').create(recursive: true);
     final fullPath = '$directory/sample/image.png';
-    final imgFile = File('$fullPath');
+    final imgFile = File(fullPath);
     if (image != null) {
       imgFile.writeAsBytesSync(image);
+      if (!mounted) {
+        return;
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.grey[700],
@@ -52,7 +58,7 @@ class _SignatureExampleState extends State<SignatureExample> {
               const Text("Image Exported successfully.",
                   style: TextStyle(color: Colors.white)),
               TextButton(
-                onPressed: () => OpenFile.open("$fullPath"),
+                onPressed: () => OpenFile.open(fullPath),
                 child: Text(
                   "Open",
                   style: TextStyle(color: Colors.blue[200]),

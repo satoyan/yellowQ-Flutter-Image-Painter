@@ -502,6 +502,8 @@ class ImagePainterState extends State<ImagePainter> {
 
   ///Converts the incoming image type from constructor to [ui.Image]
   Future<void> _resolveAndConvertImage() async {
+    debugPrint('${widget.assetPath}');
+
     if (widget.networkUrl != null) {
       _image = await _loadNetworkImage(widget.networkUrl!);
       if (_image != null) {

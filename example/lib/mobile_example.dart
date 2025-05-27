@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_painter/image_painter.dart';
+import 'package:image_painter_rotate/image_painter_rotate.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MobileExample extends StatefulWidget {
-  const MobileExample({Key? key}) : super(key: key);
+  const MobileExample({super.key});
 
   @override
   State<MobileExample> createState() => _MobileExampleState();
@@ -19,11 +19,14 @@ class _MobileExampleState extends State<MobileExample> {
     mode: PaintMode.line,
   );
 
+  int quarterTurns = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Image Painter Example"),
+        title: const Text("Image Painter Rotate Example",
+            style: TextStyle(fontSize: 20)),
         actions: [
           IconButton(
             icon: const Icon(Icons.save_alt),
@@ -31,11 +34,39 @@ class _MobileExampleState extends State<MobileExample> {
           )
         ],
       ),
-      body: ImagePainter.asset(
-        "assets/sample.jpg",
-        controller: _controller,
-        scalable: true,
-        textDelegate: TextDelegate(),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                  onPressed: () {
+                    setState(() {
+                      quarterTurns = (quarterTurns - 1) % 4;
+                    });
+                  },
+                  icon: Icon(Icons.rotate_left)),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    quarterTurns = (quarterTurns + 1) % 4;
+                  });
+                },
+                icon: Icon(Icons.rotate_right),
+              ),
+            ],
+          ),
+          Flexible(
+            child: ImagePainter.asset(
+              quarterTurns: quarterTurns,
+              "assets/sample.png",
+              controller: _controller,
+              scalable: true,
+              textDelegate: TextDelegate(),
+              controlsAtTop: false,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -46,9 +77,12 @@ class _MobileExampleState extends State<MobileExample> {
     final directory = (await getApplicationDocumentsDirectory()).path;
     await Directory('$directory/sample').create(recursive: true);
     final fullPath = '$directory/sample/$imageName';
-    final imgFile = File('$fullPath');
+    final imgFile = File(fullPath);
     if (image != null) {
       imgFile.writeAsBytesSync(image);
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.grey[700],
@@ -59,7 +93,7 @@ class _MobileExampleState extends State<MobileExample> {
               const Text("Image Exported successfully.",
                   style: TextStyle(color: Colors.white)),
               TextButton(
-                onPressed: () => OpenFile.open("$fullPath"),
+                onPressed: () => OpenFile.open(fullPath),
                 child: Text(
                   "Open",
                   style: TextStyle(

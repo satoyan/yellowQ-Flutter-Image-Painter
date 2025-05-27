@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../image_painter.dart';
+import '../image_painter_rotate.dart';
 
 class SignaturePainter extends CustomPainter {
   final Color backgroundColor;

@@ -1,12 +1,12 @@
-name: image_painter
-description: A flutter package for drawing over images. Supports color,
+name: image_painter_rotate
+description: A flutter package for drawing over images. Supports rotating, color,
   strokeWidth, different paintModes and exporting image.
-version: 0.7.1
-homepage: https://github.com/yellowQ-software/yellowQ-Flutter-Image-Painter
+version: 0.8.1
+homepage: https://github.com/satoyan/yellowQ-Flutter-Image-Painter
 
 environment:
-  sdk: ">=2.15.0 <4.0.0"
-  flutter: ">=1.17.0"
+  sdk: ">=3.6.1 <4.0.0"
+  flutter: ">=3.27.0"
 
 dependencies:
   flutter:

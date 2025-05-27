@@ -1,14 +1,17 @@
-# image_painter
+# image_painter_rotate
 
-[![pub package](https://img.shields.io/pub/v/image_painter.svg)](https://pub.dev/packages/image_painter)
+
+[![pub package](https://img.shields.io/pub/v/image_painter.svg)](https://pub.dev/packages/image_painter_rotate)
 ![style: effective dart](https://img.shields.io/badge/style-effective_dart-40c4ff.svg)
-[![Platform Badge](https://img.shields.io/badge/platform-android%20|%20ios%20-green.svg)](https://pub.dev/packages/image_painter)
+[![Platform Badge](https://img.shields.io/badge/platform-android%20|%20ios%20-green.svg)](https://pub.dev/packages/image_painter_rotate)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+This project is a fork of the [`image_painter`](https://github.com/yellowQ-software/yellowQ-Flutter-Image-Painter) package, with added features and improvements.
 
 A flutter implementation of painting over image.
 
 # Overview
-![demo!](https://raw.githubusercontent.com/yellowQ-software/yellowQ-Flutter-Image-Painter/main/screenshots/image_painter_sample.gif)
+![demo!](https://raw.githubusercontent.com/satoyan/yellowQ-Flutter-Image-Painter/refs/heads/main/screenshots/image_painter_rotate_sample.png)
 
 ## Features
 
@@ -17,6 +20,7 @@ A flutter implementation of painting over image.
 - Export image as memory bytes which can be converted to image. [Implementation provided on example](./example)
 - Ability to undo and clear drawings.
 - Built in control bar. 
+- Support rotation by quarterTurns
 
 [Note]
   Tested and working only on flutter stable channel. Please make sure you are on stable channel of flutter before using the package.
@@ -28,13 +32,13 @@ In the `pubspec.yaml` of your flutter project, add the following dependency:
 ```yaml
 dependencies:
   ...
-  image_painter: latest
+  image_painter_rotate: latest
 ```
 
 In your library add the following import:
 
 ```dart
-import 'package:image_painter/image_painter.dart';
+import 'package:image_painter_rotate/image_painter_rotate.dart';
 ```
 
 For help getting started with Flutter, view the online [documentation](https://flutter.io/).
@@ -52,8 +56,12 @@ Basic usage of the libary:
 final imagePainterController = ImagePainterController();
 
 /// Provide controller to the painter.
-ImagePainter.network("https://sample_image.png",
-                  controller: imagePainterController,scalable: true),
+ImagePainter.network(
+  "https://sample_image.png",
+  controller: imagePainterController,
+  scalable: true,
+  quarterTurns: 1, // rotate 45 degree
+),
 
 ///Export the image:
 Uint8List byteArray = await imagePainterController.exportImage();
@@ -66,6 +74,6 @@ imgFile.writeAsBytesSync(image);
 ```
 **For more thorough implementation guide, check the [example](./example).**
 
-## Issues and Support.
+<!-- ## Issues and Support. -->
 
-For any issues or support please visit the [Issues](https://github.com/yellowQ-software/yellowQ-Flutter-Image-Painter/issues).
+<!-- For any issues or support please visit the [Issues](https://github.com/yellowQ-software/yellowQ-Flutter-Image-Painter/issues). -->

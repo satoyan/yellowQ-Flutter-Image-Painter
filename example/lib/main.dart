@@ -1,9 +1,11 @@
+import 'package:example/mobile_example.dart';
 import 'package:flutter/material.dart';
-import 'package:image_painter_example/mobile_example.dart';
 
-void main() => runApp(ExampleApp());
+void main() => runApp(MyApp());
 
-class ExampleApp extends StatelessWidget {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,6 +20,8 @@ class ExampleApp extends StatelessWidget {
 }
 
 class ImagePainterExample extends StatelessWidget {
+  const ImagePainterExample({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MobileExample();
