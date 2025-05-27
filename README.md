@@ -74,6 +74,6 @@ imgFile.writeAsBytesSync(image);
 ```
 **For more thorough implementation guide, check the [example](./example).**
 
-<!-- ## Issues and Support. -->
+## Issues and Support.
 
-<!-- For any issues or support please visit the [Issues](https://github.com/yellowQ-software/yellowQ-Flutter-Image-Painter/issues). -->
+For any issues or support please visit the [Issues](https://github.com/satoyan/yellowQ-Flutter-Image-Painter/issues).
