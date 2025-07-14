@@ -11,7 +11,7 @@ This project is a fork of the [`image_painter`](https://github.com/yellowQ-softw
 A flutter implementation of painting over image.
 
 # Overview
-![demo!](https://raw.githubusercontent.com/satoyan/yellowQ-Flutter-Image-Painter/refs/heads/main/screenshots/image_painter_rotate_sample.png)
+![demo!](https://raw.githubusercontent.com/satoyan/yellowQ-Flutter-Image-Painter/refs/heads/main/screenshots/image_painter_rotate_sample.gif)
 
 ## Features
 
@@ -47,7 +47,7 @@ For help getting started with Flutter, view the online [documentation](https://f
 
 [Check out the example](./example)
 
-Basic usage of the libary:
+Basic usage of the library:
 
 - `ImagePainter.network`: Painting over image from network url.
 
