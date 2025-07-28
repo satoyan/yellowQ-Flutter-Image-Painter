@@ -11,3 +11,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mockito: ^5.0.0 # Or the latest version
+  build_runner: ^2.0.0 # Use the latest version
+  build_test: ^2.0.0 # Use the latest version
