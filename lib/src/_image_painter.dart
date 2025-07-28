@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart' hide Image;
 
 import 'controller.dart';
+import 'drawing_utils.dart';
 
 ///Handles all the painting ongoing on the canvas.
 class DrawImage extends CustomPainter {
@@ -54,13 +55,15 @@ class DrawImage extends CustomPainter {
           canvas.drawPath(path, _painter);
           break;
         case PaintMode.arrow:
-          drawArrow(canvas, _offset[0]!, _offset[1]!, _painter);
+          DrawingUtils.drawArrow(
+              canvas, item.offsets[0]!, item.offsets[1]!, item.paint);
           break;
         case PaintMode.dashLine:
           final path = Path()
-            ..moveTo(_offset[0]!.dx, _offset[0]!.dy)
-            ..lineTo(_offset[1]!.dx, _offset[1]!.dy);
-          canvas.drawPath(_dashPath(path, _painter.strokeWidth), _painter);
+            ..moveTo(item.offsets[0]!.dx, item.offsets[0]!.dy)
+            ..lineTo(item.offsets[1]!.dx, item.offsets[1]!.dy);
+          canvas.drawPath(
+              DrawingUtils.dashPath(path, item.paint.strokeWidth), item.paint);
           break;
         case PaintMode.freeStyle:
           for (int i = 0; i < _offset.length - 1; i++) {
@@ -120,13 +123,14 @@ class DrawImage extends CustomPainter {
           canvas.drawPath(path, _paint);
           break;
         case PaintMode.arrow:
-          drawArrow(canvas, _start!, _end!, _paint);
+          DrawingUtils.drawArrow(canvas, _start!, _end!, _paint);
           break;
         case PaintMode.dashLine:
           final path = Path()
             ..moveTo(_start!.dx, _start.dy)
             ..lineTo(_end!.dx, _end.dy);
-          canvas.drawPath(_dashPath(path, _paint.strokeWidth), _paint);
+          canvas.drawPath(
+              DrawingUtils.dashPath(path, _paint.strokeWidth), _paint);
           break;
         case PaintMode.freeStyle:
           final points = _controller.offsets;
@@ -147,46 +151,6 @@ class DrawImage extends CustomPainter {
     }
 
     ///Draws all the completed actions of painting on the canvas.
-  }
-
-  ///Draws line as well as the arrowhead on top of it.
-  ///Uses [strokeWidth] of the painter for sizing.
-  void drawArrow(Canvas canvas, Offset start, Offset end, Paint painter) {
-    final arrowPainter = Paint()
-      ..color = painter.color
-      ..strokeWidth = painter.strokeWidth
-      ..style = PaintingStyle.stroke;
-    canvas.drawLine(start, end, painter);
-    final _pathOffset = painter.strokeWidth / 15;
-    final path = Path()
-      ..lineTo(-15 * _pathOffset, 10 * _pathOffset)
-      ..lineTo(-15 * _pathOffset, -10 * _pathOffset)
-      ..close();
-    canvas.save();
-    canvas.translate(end.dx, end.dy);
-    canvas.rotate((end - start).direction);
-    canvas.drawPath(path, arrowPainter);
-    canvas.restore();
-  }
-
-  ///Draws dashed path.
-  ///It depends on [strokeWidth] for space to line proportion.
-  Path _dashPath(Path path, double width) {
-    final dashPath = Path();
-    final dashWidth = 10.0 * width / 5;
-    final dashSpace = 10.0 * width / 5;
-    var distance = 0.0;
-    for (final pathMetric in path.computeMetrics()) {
-      while (distance < pathMetric.length) {
-        dashPath.addPath(
-          pathMetric.extractPath(distance, distance + dashWidth),
-          Offset.zero,
-        );
-        distance += dashWidth;
-        distance += dashSpace;
-      }
-    }
-    return dashPath;
   }
 
   @override
