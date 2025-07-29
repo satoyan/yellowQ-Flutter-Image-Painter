@@ -1,3 +1,7 @@
+# 0.8.4
+
+- Add DrawingUtils and tests for image painting utilities.
+
 # 0.8.3
 
 - Update sample screeshot
