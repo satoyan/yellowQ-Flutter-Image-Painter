@@ -48,4 +48,7 @@ class DutchTextDelegate implements TextDelegate {
 
   @override
   String get redo => "Opnieuw doen";
+
+  @override
+  String get move => "Mode";
 }
