@@ -458,7 +458,7 @@ class ImagePainter extends StatefulWidget {
 }
 
 ///
-class ImagePainterState extends State<ImagePainter> {
+class ImagePainterState extends State<ImagePainter> with SingleTickerProviderStateMixin {
   final _repaintKey = GlobalKey();
   ui.Image? _image;
   late final ImagePainterController _controller;
@@ -468,6 +468,10 @@ class ImagePainterState extends State<ImagePainter> {
 
   int _strokeMultiplier = 1;
   late TextDelegate textDelegate;
+  PaintInfo? _selectedObject;
+  Offset? _initialPanPosition;
+  List<Offset?>? _initialOffsets;
+
   @override
   void initState() {
     super.initState();
@@ -622,6 +626,7 @@ class ImagePainterState extends State<ImagePainter> {
                           scaleEnabled: widget.isScalable!,
                           onInteractionUpdate: _scaleUpdateGesture,
                           onInteractionEnd: _scaleEndGesture,
+                          onInteractionStart: _scaleStartGesture,
                           child: CustomPaint(
                             size: imageSize,
                             willChange: true,
@@ -707,46 +712,78 @@ class ImagePainterState extends State<ImagePainter> {
   _scaleStartGesture(ScaleStartDetails onStart) {
     final _zoomAdjustedOffset =
         _transformationController.toScene(onStart.localFocalPoint);
-    if (!widget.isSignature) {
-      _controller.setStart(_zoomAdjustedOffset);
-      _controller.addOffsets(_zoomAdjustedOffset);
+    if (_controller.mode == PaintMode.move) {
+      _selectedObject = _controller.detectObject(_zoomAdjustedOffset);
+      if (_selectedObject == null) {
+        _controller.deselectAll();
+      } else {
+        _initialPanPosition = onStart.focalPoint;
+        _initialOffsets = _selectedObject!.offsets;
+      }
+    } else {
+      if (!widget.isSignature) {
+        _controller.setStart(_zoomAdjustedOffset);
+        _controller.addOffsets(_zoomAdjustedOffset);
+      }
     }
   }
 
   ///Fires while user is interacting with the screen to record painting.
   void _scaleUpdateGesture(ScaleUpdateDetails onUpdate) {
-    final _zoomAdjustedOffset =
-        _transformationController.toScene(onUpdate.localFocalPoint);
-    _controller.setInProgress(true);
-    if (_controller.start == null) {
-      _controller.setStart(_zoomAdjustedOffset);
-    }
-    _controller.setEnd(_zoomAdjustedOffset);
-    if (_controller.mode == PaintMode.freeStyle) {
-      _controller.addOffsets(_zoomAdjustedOffset);
-    }
-    if (_controller.onTextUpdateMode) {
-      _controller.paintHistory
-          .lastWhere((element) => element.mode == PaintMode.text)
-          .offsets = [_zoomAdjustedOffset];
+    if (_controller.mode == PaintMode.move) {
+      if (_selectedObject != null) {
+        final delta = onUpdate.focalPoint - _initialPanPosition!;
+        final newOffsets = _initialOffsets!.map((e) {
+          if (e == null) return null;
+          return e + delta;
+        }).toList();
+        _selectedObject!.offsets = newOffsets;
+        _controller.updatePaintInfo(_selectedObject!);
+      }
+    } else {
+      final _zoomAdjustedOffset =
+          _transformationController.toScene(onUpdate.localFocalPoint);
+      _controller.setInProgress(true);
+      if (_controller.start == null) {
+        _controller.setStart(_zoomAdjustedOffset);
+      }
+      _controller.setEnd(_zoomAdjustedOffset);
+      if (_controller.mode == PaintMode.freeStyle) {
+        _controller.addOffsets(_zoomAdjustedOffset);
+      }
+      if (_controller.onTextUpdateMode) {
+        _controller.paintHistory
+            .lastWhere((element) => element.mode == PaintMode.text)
+            .offsets = [_zoomAdjustedOffset];
+      }
     }
   }
 
   ///Fires when user stops interacting with the screen.
   void _scaleEndGesture(ScaleEndDetails onEnd) {
-    _controller.setInProgress(false);
-    if (_controller.start != null &&
-        _controller.end != null &&
-        (_controller.mode == PaintMode.freeStyle)) {
-      _controller.addOffsets(null);
-      _addFreeStylePoints();
-      _controller.offsets.clear();
-    } else if (_controller.start != null &&
-        _controller.end != null &&
-        _controller.mode != PaintMode.text) {
-      _addEndPoints();
+    if (_controller.mode == PaintMode.move) {
+      if (_selectedObject != null) {
+        _controller.addMoveAction(
+            _selectedObject!, _initialOffsets!);
+      }
+      _selectedObject = null;
+      _initialPanPosition = null;
+      _initialOffsets = null;
+    } else {
+      _controller.setInProgress(false);
+      if (_controller.start != null &&
+          _controller.end != null &&
+          (_controller.mode == PaintMode.freeStyle)) {
+        _controller.addOffsets(null);
+        _addFreeStylePoints();
+        _controller.offsets.clear();
+      } else if (_controller.start != null &&
+          _controller.end != null &&
+          _controller.mode != PaintMode.text) {
+        _addEndPoints();
+      }
+      _controller.resetStartAndEnd();
     }
-    _controller.resetStartAndEnd();
   }
 
   void _addEndPoints() => _addPaintHistory(

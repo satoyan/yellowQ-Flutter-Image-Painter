@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart' hide Image;
 
@@ -41,9 +41,28 @@ class DrawImage extends CustomPainter {
       switch (item.mode) {
         case PaintMode.rect:
           canvas.drawRect(Rect.fromPoints(_offset[0]!, _offset[1]!), _painter);
+          if (item.selected) {
+            final paint = Paint()
+              ..color = Colors.white
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2;
+            final path = Path()
+              ..addRect(Rect.fromPoints(_offset[0]!, _offset[1]!));
+            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+          }
           break;
         case PaintMode.line:
           canvas.drawLine(_offset[0]!, _offset[1]!, _painter);
+          if (item.selected) {
+            final paint = Paint()
+              ..color = Colors.white
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2;
+            final path = Path()
+              ..moveTo(_offset[0]!.dx, _offset[0]!.dy)
+              ..lineTo(_offset[1]!.dx, _offset[1]!.dy);
+            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+          }
           break;
         case PaintMode.circle:
           final path = Path();
@@ -53,10 +72,33 @@ class DrawImage extends CustomPainter {
                 radius: (_offset[0]! - _offset[1]!).distance),
           );
           canvas.drawPath(path, _painter);
+          if (item.selected) {
+            final paint = Paint()
+              ..color = Colors.white
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2;
+            final path = Path();
+            path.addOval(Rect.fromCircle(
+                center: _offset[1]!,
+                radius: (_offset[0]! - _offset[1]!).distance));
+            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+          }
           break;
         case PaintMode.arrow:
           DrawingUtils.drawArrow(
               canvas, item.offsets[0]!, item.offsets[1]!, item.paint);
+          if (item.selected) {
+            final paint = Paint()
+              ..color = Colors.white
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2;
+            final path = Path()
+              ..moveTo(item.offsets[0]!.dx, item.offsets[0]!.dy)
+              ..lineTo(item.offsets[1]!.dx, item.offsets[1]!.dy);
+            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+            DrawingUtils.drawArrow(
+                canvas, item.offsets[0]!, item.offsets[1]!, paint);
+          }
           break;
         case PaintMode.dashLine:
           final path = Path()
@@ -73,8 +115,8 @@ class DrawImage extends CustomPainter {
                 ..lineTo(_offset[i + 1]!.dx, _offset[i + 1]!.dy);
               canvas.drawPath(_path, _painter..strokeCap = StrokeCap.round);
             } else if (_offset[i] != null && _offset[i + 1] == null) {
-              canvas.drawPoints(PointMode.points, [_offset[i]!],
-                  _painter..strokeCap = StrokeCap.round);
+              canvas.drawPoints(ui.PointMode.points, [_offset[i]!],
+                  _painter..strokeCap = ui.StrokeCap.round);
             }
           }
           break;
@@ -99,6 +141,17 @@ class DrawImage extends CustomPainter {
               : Offset(_offset[0]!.dx - textPainter.width / 2,
                   _offset[0]!.dy - textPainter.height / 2);
           textPainter.paint(canvas, textOffset);
+          if (item.selected) {
+            final rect = Rect.fromLTWH(textOffset.dx, textOffset.dy,
+                textPainter.width, textPainter.height);
+            final paint = Paint()
+              ..color = Colors.white
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2;
+            final path = Path()
+              ..addRect(rect);
+            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+          }
           break;
         default:
       }
@@ -141,16 +194,14 @@ class DrawImage extends CustomPainter {
                   Offset(points[i + 1]!.dx, points[i + 1]!.dy),
                   _paint..strokeCap = StrokeCap.round);
             } else if (points[i] != null && points[i + 1] == null) {
-              canvas.drawPoints(PointMode.points,
-                  [Offset(points[i]!.dx, points[i]!.dy)], _paint);
+              canvas.drawPoints(ui.PointMode.points,
+                  [ui.Offset(points[i]!.dx, points[i]!.dy)], _paint);
             }
           }
           break;
         default:
       }
     }
-
-    ///Draws all the completed actions of painting on the canvas.
   }
 
   @override
@@ -184,7 +235,10 @@ enum PaintMode {
   circle,
 
   ///Allows to draw dashed line between two point.
-  dashLine
+  dashLine,
+
+  ///Allows to move an object.
+  move
 }
 
 ///[PaintInfo] keeps track of a single unit of shape, whichever selected.
@@ -208,6 +262,9 @@ class PaintInfo {
   //To determine whether the drawn shape is filled or not.
   bool fill;
 
+  //To determine whether the drawn shape is selected or not.
+  bool selected;
+
   Paint get paint => Paint()
     ..color = color
     ..strokeWidth = strokeWidth
@@ -229,5 +286,18 @@ class PaintInfo {
     required this.strokeWidth,
     this.text = '',
     this.fill = false,
+    this.selected = false,
   });
+
+  PaintInfo clone() {
+    return PaintInfo(
+      mode: mode,
+      offsets: List.from(offsets),
+      color: color,
+      strokeWidth: strokeWidth,
+      text: text,
+      fill: fill,
+      selected: selected,
+    );
+  }
 }

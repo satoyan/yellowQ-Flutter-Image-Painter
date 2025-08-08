@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../image_painter_rotate.dart';
 import '_signature_painter.dart';
+import 'action.dart';
 
 class ImagePainterController extends ChangeNotifier {
   late double _strokeWidth;
@@ -18,7 +20,8 @@ class ImagePainterController extends ChangeNotifier {
   final List<Offset?> _offsets = [];
 
   final List<PaintInfo> _paintHistory = [];
-  final List<PaintInfo> _undotHistory = [];
+  final List<PaintAction> _actionHistory = [];
+  final List<PaintAction> _undoActionHistory = [];
 
   Offset? _start, _end;
 
@@ -86,19 +89,37 @@ class ImagePainterController extends ChangeNotifier {
 
   void addPaintInfo(PaintInfo paintInfo) {
     _paintHistory.add(paintInfo);
+    _actionHistory.add(AddAction(paintInfo));
     notifyListeners();
   }
 
+  void addMoveAction(PaintInfo paintInfo, List<Offset?> oldOffsets) {
+    _actionHistory.add(MoveAction(paintInfo, oldOffsets, paintInfo.offsets));
+    notifyListeners();
+  }
+
+  void updatePaintInfo(PaintInfo paintInfo) {
+    final index = _paintHistory.indexOf(paintInfo);
+    if (index != -1) {
+      _paintHistory[index] = paintInfo;
+      notifyListeners();
+    }
+  }
+
   void undo() {
-    if (_paintHistory.isNotEmpty) {
-      _undotHistory.add(_paintHistory.removeLast());
+    if (_actionHistory.isNotEmpty) {
+      final lastAction = _actionHistory.removeLast();
+      lastAction.undo(_paintHistory);
+      _undoActionHistory.add(lastAction);
       notifyListeners();
     }
   }
 
   void redo() {
-    if (_undotHistory.isNotEmpty) {
-      _paintHistory.add(_undotHistory.removeLast());
+    if (_undoActionHistory.isNotEmpty) {
+      final lastAction = _undoActionHistory.removeLast();
+      lastAction.redo(_paintHistory);
+      _actionHistory.add(lastAction);
       notifyListeners();
     }
   }
@@ -106,6 +127,8 @@ class ImagePainterController extends ChangeNotifier {
   void clear() {
     if (_paintHistory.isNotEmpty) {
       _paintHistory.clear();
+      _actionHistory.clear();
+      _undoActionHistory.clear();
       notifyListeners();
     }
   }
@@ -171,6 +194,88 @@ class ImagePainterController extends ChangeNotifier {
   void setInProgress(bool val) {
     _paintInProgress = val;
     notifyListeners();
+  }
+
+  void deselectAll() {
+    for (final item in _paintHistory) {
+      item.selected = false;
+    }
+    notifyListeners();
+  }
+
+  PaintInfo? detectObject(Offset offset) {
+    for (final item in _paintHistory) {
+      item.selected = false;
+    }
+    for (final item in _paintHistory.reversed) {
+      if (item.mode == PaintMode.rect) {
+        final rect = Rect.fromPoints(item.offsets[0]!, item.offsets[1]!);
+        if (rect.contains(offset)) {
+          item.selected = true;
+          notifyListeners();
+          return item;
+        }
+      } else if (item.mode == PaintMode.line) {
+        final p1 = item.offsets[0]!;
+        final p2 = item.offsets[1]!;
+        final distance = ((p2.dx - p1.dx) * (p1.dy - offset.dy) -
+                    (p1.dx - offset.dx) * (p2.dy - p1.dy))
+                .abs() /
+            (p2 - p1).distance;
+        if (distance < 10) {
+          item.selected = true;
+          notifyListeners();
+          return item;
+        }
+      } else if (item.mode == PaintMode.circle) {
+        final center = item.offsets[1]!;
+        final radius = (item.offsets[0]! - item.offsets[1]!).distance;
+        if ((offset - center).distance < radius) {
+          item.selected = true;
+          notifyListeners();
+          return item;
+        }
+      } else if (item.mode == PaintMode.arrow) {
+        final p1 = item.offsets[0]!;
+        final p2 = item.offsets[1]!;
+        final distance = ((p2.dx - p1.dx) * (p1.dy - offset.dy) -
+                    (p1.dx - offset.dx) * (p2.dy - p1.dy))
+                .abs() /
+            (p2 - p1).distance;
+        if (distance < 10) {
+          item.selected = true;
+          notifyListeners();
+          return item;
+        }
+      } else if (item.mode == PaintMode.text) {
+        final textSpan = TextSpan(
+          text: item.text,
+          style: TextStyle(
+            color: item.color,
+            fontSize: 6 * item.strokeWidth,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+        final textPainter = TextPainter(
+          text: textSpan,
+          textAlign: TextAlign.center,
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout(minWidth: 0, maxWidth: double.infinity);
+        final textOffset = item.offsets.isEmpty
+            ? Offset(-textPainter.width / 2, -textPainter.height / 2)
+            : Offset(item.offsets[0]!.dx - textPainter.width / 2,
+                item.offsets[0]!.dy - textPainter.height / 2);
+        final rect = Rect.fromLTWH(textOffset.dx, textOffset.dy,
+            textPainter.width, textPainter.height);
+        if (rect.contains(offset)) {
+          item.selected = true;
+          notifyListeners();
+          return item;
+        }
+      }
+    }
+    return null;
   }
 
   bool get shouldFill {
