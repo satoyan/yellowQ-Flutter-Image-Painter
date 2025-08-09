@@ -251,6 +251,18 @@ class ImagePainterController extends ChangeNotifier {
           notifyListeners();
           return item;
         }
+      } else if (item.mode == PaintMode.dashLine) {
+        final p1 = item.offsets[0]!;
+        final p2 = item.offsets[1]!;
+        final distance = ((p2.dx - p1.dx) * (p1.dy - offset.dy) -
+                    (p1.dx - offset.dx) * (p2.dy - p1.dy))
+                .abs() /
+            (p2 - p1).distance;
+        if (distance < 10) {
+          item.selected = true;
+          notifyListeners();
+          return item;
+        }
       } else if (item.mode == PaintMode.text) {
         final textSpan = TextSpan(
           text: item.text,
