@@ -1,3 +1,10 @@
+# 1.0.1
+
+- Refactor: Extracted `PaintMode` and `PaintInfo` into separate files for better modularity.
+- Refactor: Improved painting logic and `detectObject` method readability by extracting helper methods.
+- Fix: Prevented unwanted lines when switching to freehand mode by clearing offsets.
+- Feat: Added detection for `dashLine` objects in `detectObject` method.
+
 # 1.0.0
 
 - Implement movable drawing objects with undo/redo and dotted selection.
@@ -19,4 +26,3 @@
 - Support image content padding.
 - Support redo includes UI.
 - Support image rotation with RotatedBox.
-
