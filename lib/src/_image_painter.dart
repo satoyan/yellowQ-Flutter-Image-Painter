@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide Image;
 
 import 'controller.dart';
 import 'drawing_utils.dart';
+import 'paint_mode.dart';
 
 ///Handles all the painting ongoing on the canvas.
 class DrawImage extends CustomPainter {
@@ -48,7 +49,8 @@ class DrawImage extends CustomPainter {
               ..strokeWidth = 2;
             final path = Path()
               ..addRect(Rect.fromPoints(_offset[0]!, _offset[1]!));
-            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+            canvas.drawPath(
+                DrawingUtils.dashPath(path, paint.strokeWidth), paint);
           }
           break;
         case PaintMode.line:
@@ -61,7 +63,8 @@ class DrawImage extends CustomPainter {
             final path = Path()
               ..moveTo(_offset[0]!.dx, _offset[0]!.dy)
               ..lineTo(_offset[1]!.dx, _offset[1]!.dy);
-            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+            canvas.drawPath(
+                DrawingUtils.dashPath(path, paint.strokeWidth), paint);
           }
           break;
         case PaintMode.circle:
@@ -81,7 +84,8 @@ class DrawImage extends CustomPainter {
             path.addOval(Rect.fromCircle(
                 center: _offset[1]!,
                 radius: (_offset[0]! - _offset[1]!).distance));
-            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+            canvas.drawPath(
+                DrawingUtils.dashPath(path, paint.strokeWidth), paint);
           }
           break;
         case PaintMode.arrow:
@@ -95,7 +99,8 @@ class DrawImage extends CustomPainter {
             final path = Path()
               ..moveTo(item.offsets[0]!.dx, item.offsets[0]!.dy)
               ..lineTo(item.offsets[1]!.dx, item.offsets[1]!.dy);
-            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+            canvas.drawPath(
+                DrawingUtils.dashPath(path, paint.strokeWidth), paint);
             DrawingUtils.drawArrow(
                 canvas, item.offsets[0]!, item.offsets[1]!, paint);
           }
@@ -148,9 +153,9 @@ class DrawImage extends CustomPainter {
               ..color = Colors.white
               ..style = PaintingStyle.stroke
               ..strokeWidth = 2;
-            final path = Path()
-              ..addRect(rect);
-            canvas.drawPath(DrawingUtils.dashPath(path, paint.strokeWidth), paint);
+            final path = Path()..addRect(rect);
+            canvas.drawPath(
+                DrawingUtils.dashPath(path, paint.strokeWidth), paint);
           }
           break;
         default:
@@ -211,93 +216,3 @@ class DrawImage extends CustomPainter {
 }
 
 ///All the paint method available for use.
-
-enum PaintMode {
-  ///Prefer using [None] while doing scaling operations.
-  none,
-
-  ///Allows for drawing freehand shapes or text.
-  freeStyle,
-
-  ///Allows to draw line between two points.
-  line,
-
-  ///Allows to draw rectangle.
-  rect,
-
-  ///Allows to write texts over an image.
-  text,
-
-  ///Allows us to draw line with arrow at the end point.
-  arrow,
-
-  ///Allows to draw circle from a point.
-  circle,
-
-  ///Allows to draw dashed line between two point.
-  dashLine,
-
-  ///Allows to move an object.
-  move
-}
-
-///[PaintInfo] keeps track of a single unit of shape, whichever selected.
-class PaintInfo {
-  ///Mode of the paint method.
-  final PaintMode mode;
-
-  //Used to save color
-  final Color color;
-
-  //Used to store strokesize of the mode.
-  final double strokeWidth;
-
-  ///Used to save offsets.
-  ///Two point in case of other shapes and list of points for [FreeStyle].
-  List<Offset?> offsets;
-
-  ///Used to save text in case of text type.
-  String text;
-
-  //To determine whether the drawn shape is filled or not.
-  bool fill;
-
-  //To determine whether the drawn shape is selected or not.
-  bool selected;
-
-  Paint get paint => Paint()
-    ..color = color
-    ..strokeWidth = strokeWidth
-    ..style = shouldFill ? PaintingStyle.fill : PaintingStyle.stroke;
-
-  bool get shouldFill {
-    if (mode == PaintMode.circle || mode == PaintMode.rect) {
-      return fill;
-    } else {
-      return false;
-    }
-  }
-
-  ///In case of string, it is used to save string value entered.
-  PaintInfo({
-    required this.mode,
-    required this.offsets,
-    required this.color,
-    required this.strokeWidth,
-    this.text = '',
-    this.fill = false,
-    this.selected = false,
-  });
-
-  PaintInfo clone() {
-    return PaintInfo(
-      mode: mode,
-      offsets: List.from(offsets),
-      color: color,
-      strokeWidth: strokeWidth,
-      text: text,
-      fill: fill,
-      selected: selected,
-    );
-  }
-}

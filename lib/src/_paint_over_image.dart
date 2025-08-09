@@ -9,6 +9,8 @@ import '_image_painter.dart';
 import '_signature_painter.dart';
 import 'controller.dart';
 import 'delegates/text_delegate.dart';
+import 'paint_info.dart';
+import 'paint_mode.dart';
 import 'widgets/_color_widget.dart';
 import 'widgets/_mode_widget.dart';
 import 'widgets/_range_slider.dart';
@@ -458,7 +460,8 @@ class ImagePainter extends StatefulWidget {
 }
 
 ///
-class ImagePainterState extends State<ImagePainter> with SingleTickerProviderStateMixin {
+class ImagePainterState extends State<ImagePainter>
+    with SingleTickerProviderStateMixin {
   final _repaintKey = GlobalKey();
   ui.Image? _image;
   late final ImagePainterController _controller;
@@ -763,8 +766,7 @@ class ImagePainterState extends State<ImagePainter> with SingleTickerProviderSta
   void _scaleEndGesture(ScaleEndDetails onEnd) {
     if (_controller.mode == PaintMode.move) {
       if (_selectedObject != null) {
-        _controller.addMoveAction(
-            _selectedObject!, _initialOffsets!);
+        _controller.addMoveAction(_selectedObject!, _initialOffsets!);
       }
       _selectedObject = null;
       _initialPanPosition = null;

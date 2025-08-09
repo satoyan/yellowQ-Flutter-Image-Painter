@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_painter_rotate/image_painter_rotate.dart';
+import 'package:image_painter_rotate/src/paint_info.dart';
 
 void main() {
   group('ImagePainterController', () {
@@ -77,4 +78,3 @@ void main() {
     });
   });
 }
-

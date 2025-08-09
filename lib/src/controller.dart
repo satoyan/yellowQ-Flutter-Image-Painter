@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../image_painter_rotate.dart';
 import '_signature_painter.dart';
 import 'action.dart';
+import 'paint_info.dart';
 
 class ImagePainterController extends ChangeNotifier {
   late double _strokeWidth;

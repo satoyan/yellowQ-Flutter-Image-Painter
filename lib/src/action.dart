@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import '_image_painter.dart';
+import 'paint_info.dart';
 
 abstract class PaintAction {
   void undo(List<PaintInfo> paintHistory);
