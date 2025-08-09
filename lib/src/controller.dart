@@ -146,6 +146,9 @@ class ImagePainterController extends ChangeNotifier {
 
   void setMode(PaintMode mode) {
     _mode = mode;
+    if (_mode == PaintMode.freeStyle) {
+      _offsets.clear();
+    }
     notifyListeners();
   }
 
