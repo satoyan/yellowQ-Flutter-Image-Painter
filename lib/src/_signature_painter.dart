@@ -15,53 +15,53 @@ class SignaturePainter extends CustomPainter {
   }
   @override
   void paint(Canvas canvas, Size size) {
+    _drawBackground(canvas, size);
+    _drawPaintHistory(canvas);
+    _drawCurrentStroke(canvas);
+  }
+
+  void _drawBackground(Canvas canvas, Size size) {
     canvas.drawRect(
-      Rect.fromPoints(const Offset(0, 0), Offset(size.width, size.height)),
+      Rect.fromPoints(Offset.zero, Offset(size.width, size.height)),
       Paint()
         ..style = PaintingStyle.fill
         ..color = backgroundColor,
     );
+  }
+
+  void _drawPaintHistory(Canvas canvas) {
     for (final item in _controller.paintHistory) {
-      final _offsets = item.offsets;
-      final _painter = item.paint;
       if (item.mode == PaintMode.freeStyle) {
-        for (int i = 0; i < _offsets.length - 1; i++) {
-          if (_offsets[i] != null && _offsets[i + 1] != null) {
-            final _path = Path()
-              ..moveTo(_offsets[i]!.dx, _offsets[i]!.dy)
-              ..lineTo(_offsets[i + 1]!.dx, _offsets[i + 1]!.dy);
-            canvas.drawPath(_path, _painter..strokeCap = StrokeCap.round);
-          } else if (_offsets[i] != null && _offsets[i + 1] == null) {
-            canvas.drawPoints(
-              PointMode.points,
-              [_offsets[i]!],
-              _painter..strokeCap = StrokeCap.round,
-            );
-          }
-        }
+        _drawFreeStyleStroke(canvas, item.offsets, item.paint);
       }
     }
-    if (_controller.busy) {
-      final _paint = _controller.brush;
-      final points = _controller.offsets;
-      for (int i = 0; i < _controller.offsets.length - 1; i++) {
-        final currentPoint = points[i];
-        final nextPoint = points[i + 1];
-        if (currentPoint != null && nextPoint != null) {
-          canvas.drawLine(
-              Offset(currentPoint.dx, currentPoint.dy),
-              Offset(nextPoint.dx, nextPoint.dy),
-              _paint..strokeCap = StrokeCap.round);
-        } else if (currentPoint != null && nextPoint == null) {
-          canvas.drawPoints(
-            PointMode.points,
-            [
-              Offset(currentPoint.dx, currentPoint.dy),
-            ],
-            _paint,
-          );
-        }
-      }
+  }
+
+  void _drawFreeStyleStroke(Canvas canvas, List<Offset?> offsets, Paint paint) {
+    for (int i = 0; i < offsets.length - 1; i++) {
+      _drawStrokeSegment(canvas, offsets[i], offsets[i + 1], paint);
+    }
+  }
+
+  void _drawCurrentStroke(Canvas canvas) {
+    if (!_controller.busy) return;
+
+    final points = _controller.offsets;
+    final paint = _controller.brush;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      _drawStrokeSegment(canvas, points[i], points[i + 1], paint);
+    }
+  }
+
+  void _drawStrokeSegment(
+      Canvas canvas, Offset? start, Offset? end, Paint paint) {
+    paint.strokeCap = StrokeCap.round;
+
+    if (start != null && end != null) {
+      canvas.drawLine(start, end, paint);
+    } else if (start != null) {
+      canvas.drawPoints(PointMode.points, [start], paint);
     }
   }
 
