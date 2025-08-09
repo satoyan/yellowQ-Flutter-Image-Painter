@@ -211,87 +211,77 @@ class ImagePainterController extends ChangeNotifier {
     for (final item in _paintHistory) {
       item.selected = false;
     }
+
     for (final item in _paintHistory.reversed) {
-      if (item.mode == PaintMode.rect) {
-        final rect = Rect.fromPoints(item.offsets[0]!, item.offsets[1]!);
-        if (rect.contains(offset)) {
-          item.selected = true;
-          notifyListeners();
-          return item;
-        }
-      } else if (item.mode == PaintMode.line) {
-        final p1 = item.offsets[0]!;
-        final p2 = item.offsets[1]!;
-        final distance = ((p2.dx - p1.dx) * (p1.dy - offset.dy) -
-                    (p1.dx - offset.dx) * (p2.dy - p1.dy))
-                .abs() /
-            (p2 - p1).distance;
-        if (distance < 10) {
-          item.selected = true;
-          notifyListeners();
-          return item;
-        }
-      } else if (item.mode == PaintMode.circle) {
-        final center = item.offsets[1]!;
-        final radius = (item.offsets[0]! - item.offsets[1]!).distance;
-        if ((offset - center).distance < radius) {
-          item.selected = true;
-          notifyListeners();
-          return item;
-        }
-      } else if (item.mode == PaintMode.arrow) {
-        final p1 = item.offsets[0]!;
-        final p2 = item.offsets[1]!;
-        final distance = ((p2.dx - p1.dx) * (p1.dy - offset.dy) -
-                    (p1.dx - offset.dx) * (p2.dy - p1.dy))
-                .abs() /
-            (p2 - p1).distance;
-        if (distance < 10) {
-          item.selected = true;
-          notifyListeners();
-          return item;
-        }
-      } else if (item.mode == PaintMode.dashLine) {
-        final p1 = item.offsets[0]!;
-        final p2 = item.offsets[1]!;
-        final distance = ((p2.dx - p1.dx) * (p1.dy - offset.dy) -
-                    (p1.dx - offset.dx) * (p2.dy - p1.dy))
-                .abs() /
-            (p2 - p1).distance;
-        if (distance < 10) {
-          item.selected = true;
-          notifyListeners();
-          return item;
-        }
-      } else if (item.mode == PaintMode.text) {
-        final textSpan = TextSpan(
-          text: item.text,
-          style: TextStyle(
-            color: item.color,
-            fontSize: 6 * item.strokeWidth,
-            fontWeight: FontWeight.bold,
-          ),
-        );
-        final textPainter = TextPainter(
-          text: textSpan,
-          textAlign: TextAlign.center,
-          textDirection: TextDirection.ltr,
-        );
-        textPainter.layout(minWidth: 0, maxWidth: double.infinity);
-        final textOffset = item.offsets.isEmpty
-            ? Offset(-textPainter.width / 2, -textPainter.height / 2)
-            : Offset(item.offsets[0]!.dx - textPainter.width / 2,
-                item.offsets[0]!.dy - textPainter.height / 2);
-        final rect = Rect.fromLTWH(textOffset.dx, textOffset.dy,
-            textPainter.width, textPainter.height);
-        if (rect.contains(offset)) {
-          item.selected = true;
-          notifyListeners();
-          return item;
-        }
+      if (_isObjectSelected(item, offset)) {
+        item.selected = true;
+        notifyListeners();
+        return item;
       }
     }
     return null;
+  }
+
+  bool _isObjectSelected(PaintInfo item, Offset offset) {
+    switch (item.mode) {
+      case PaintMode.rect:
+        return _isRectSelected(item, offset);
+      case PaintMode.line:
+      case PaintMode.arrow:
+      case PaintMode.dashLine:
+        return _isLineSelected(item, offset);
+      case PaintMode.circle:
+        return _isCircleSelected(item, offset);
+      case PaintMode.text:
+        return _isTextSelected(item, offset);
+      default:
+        return false;
+    }
+  }
+
+  bool _isRectSelected(PaintInfo item, Offset offset) {
+    final rect = Rect.fromPoints(item.offsets[0]!, item.offsets[1]!);
+    return rect.contains(offset);
+  }
+
+  bool _isLineSelected(PaintInfo item, Offset offset) {
+    final p1 = item.offsets[0]!;
+    final p2 = item.offsets[1]!;
+    final distance = ((p2.dx - p1.dx) * (p1.dy - offset.dy) -
+            (p1.dx - offset.dx) * (p2.dy - p1.dy))
+        .abs() /
+        (p2 - p1).distance;
+    return distance < 10;
+  }
+
+  bool _isCircleSelected(PaintInfo item, Offset offset) {
+    final center = item.offsets[1]!;
+    final radius = (item.offsets[0]! - item.offsets[1]!).distance;
+    return (offset - center).distance < radius;
+  }
+
+  bool _isTextSelected(PaintInfo item, Offset offset) {
+    final textSpan = TextSpan(
+      text: item.text,
+      style: TextStyle(
+        color: item.color,
+        fontSize: 6 * item.strokeWidth,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(minWidth: 0, maxWidth: double.infinity);
+    final textOffset = item.offsets.isEmpty
+        ? Offset(-textPainter.width / 2, -textPainter.height / 2)
+        : Offset(item.offsets[0]!.dx - textPainter.width / 2,
+            item.offsets[0]!.dy - textPainter.height / 2);
+    final rect = Rect.fromLTWH(textOffset.dx, textOffset.dy,
+        textPainter.width, textPainter.height);
+    return rect.contains(offset);
   }
 
   bool get shouldFill {
