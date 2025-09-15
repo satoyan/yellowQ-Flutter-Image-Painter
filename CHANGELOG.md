@@ -1,3 +1,7 @@
+# 1.0.2
+
+- Fix: Export `PaintInfo` class to fix backward compatibility.
+
 # 1.0.1
 
 - Refactor: Extracted `PaintMode` and `PaintInfo` into separate files for better modularity.
