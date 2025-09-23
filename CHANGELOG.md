@@ -1,3 +1,8 @@
+# 1.0.4
+
+- Fix: Test errors after fixing lint errors.
+- Chore: Upgrade Gradle and Kotlin versions for the example app.
+
 # 1.0.3
 
 - Fix: Resolved an issue where undo functionality failed when the painter was initialized with existing paint histories.
