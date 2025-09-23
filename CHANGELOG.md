@@ -1,3 +1,7 @@
+# 1.0.3
+
+- Fix: Resolved an issue where undo functionality failed when the painter was initialized with existing paint histories.
+
 # 1.0.2
 
 - Fix: Export `PaintInfo` class to fix backward compatibility.
