@@ -5,7 +5,8 @@ class DrawingUtils {
 
   ///Draws line as well as the arrowhead on top of it.
   ///Uses [strokeWidth] of the painter for sizing.
-  static void drawArrow(ui.Canvas canvas, ui.Offset start, ui.Offset end, ui.Paint painter) {
+  static void drawArrow(
+      ui.Canvas canvas, ui.Offset start, ui.Offset end, ui.Paint painter) {
     final arrowPainter = ui.Paint()
       ..color = painter.color
       ..strokeWidth = painter.strokeWidth

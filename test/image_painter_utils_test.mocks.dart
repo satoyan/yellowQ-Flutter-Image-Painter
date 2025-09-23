@@ -25,7 +25,7 @@ import 'package:mockito/mockito.dart' as _i1;
 
 class _FakeImage_0 extends _i1.SmartFake implements _i2.Image {
   _FakeImage_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+      : super(parent, parentInvocation);
 }
 
 /// A class which mocks [Image].
@@ -50,42 +50,35 @@ class MockImage extends _i1.Mock implements _i2.Image {
           as bool);
 
   @override
-  _i2.ColorSpace get colorSpace =>
-      (super.noSuchMethod(
-            Invocation.getter(#colorSpace),
-            returnValue: _i2.ColorSpace.sRGB,
-          )
-          as _i2.ColorSpace);
+  _i2.ColorSpace get colorSpace => (super.noSuchMethod(
+        Invocation.getter(#colorSpace),
+        returnValue: _i2.ColorSpace.sRGB,
+      ) as _i2.ColorSpace);
 
   @override
   void dispose() => super.noSuchMethod(
-    Invocation.method(#dispose, []),
-    returnValueForMissingStub: null,
-  );
+        Invocation.method(#dispose, []),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i3.Future<_i4.ByteData?> toByteData({
     _i2.ImageByteFormat? format = _i2.ImageByteFormat.rawRgba,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#toByteData, [], {#format: format}),
-            returnValue: _i3.Future<_i4.ByteData?>.value(),
-          )
-          as _i3.Future<_i4.ByteData?>);
+        Invocation.method(#toByteData, [], {#format: format}),
+        returnValue: _i3.Future<_i4.ByteData?>.value(),
+      ) as _i3.Future<_i4.ByteData?>);
 
   @override
-  _i2.Image clone() =>
-      (super.noSuchMethod(
-            Invocation.method(#clone, []),
-            returnValue: _FakeImage_0(this, Invocation.method(#clone, [])),
-          )
-          as _i2.Image);
+  _i2.Image clone() => (super.noSuchMethod(
+        Invocation.method(#clone, []),
+        returnValue: _FakeImage_0(this, Invocation.method(#clone, [])),
+      ) as _i2.Image);
 
   @override
-  bool isCloneOf(_i2.Image? other) =>
-      (super.noSuchMethod(
-            Invocation.method(#isCloneOf, [other]),
-            returnValue: false,
-          )
-          as bool);
+  bool isCloneOf(_i2.Image? other) => (super.noSuchMethod(
+        Invocation.method(#isCloneOf, [other]),
+        returnValue: false,
+      ) as bool);
 }
