@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import '../image_painter_rotate.dart';
 import '_signature_painter.dart';
 import 'action.dart';
-import 'paint_info.dart';
 
 class ImagePainterController extends ChangeNotifier {
   late double _strokeWidth;
@@ -85,6 +84,13 @@ class ImagePainterController extends ChangeNotifier {
   void setRect(Size size) {
     _rect = Rect.fromLTWH(0, 0, size.width, size.height);
     _isSignature = true;
+    notifyListeners();
+  }
+
+  /// Use this instead paintHistory.addAll.
+  void addPaintHistories(List<PaintInfo> histories) {
+    _paintHistory.addAll(histories);
+    _actionHistory.addAll(histories.map(AddAction.new).toList());
     notifyListeners();
   }
 
@@ -248,8 +254,8 @@ class ImagePainterController extends ChangeNotifier {
     final p1 = item.offsets[0]!;
     final p2 = item.offsets[1]!;
     final distance = ((p2.dx - p1.dx) * (p1.dy - offset.dy) -
-            (p1.dx - offset.dx) * (p2.dy - p1.dy))
-        .abs() /
+                (p1.dx - offset.dx) * (p2.dy - p1.dy))
+            .abs() /
         (p2 - p1).distance;
     return distance < 10;
   }
@@ -279,8 +285,8 @@ class ImagePainterController extends ChangeNotifier {
         ? Offset(-textPainter.width / 2, -textPainter.height / 2)
         : Offset(item.offsets[0]!.dx - textPainter.width / 2,
             item.offsets[0]!.dy - textPainter.height / 2);
-    final rect = Rect.fromLTWH(textOffset.dx, textOffset.dy,
-        textPainter.width, textPainter.height);
+    final rect = Rect.fromLTWH(
+        textOffset.dx, textOffset.dy, textPainter.width, textPainter.height);
     return rect.contains(offset);
   }
 
