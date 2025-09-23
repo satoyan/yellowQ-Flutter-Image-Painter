@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/src/paint_info.dart';
-import '../lib/src/paint_mode.dart';
+import 'package:image_painter_rotate/src/paint_info.dart';
+import 'package:image_painter_rotate/src/paint_mode.dart';
 
 void main() {
   group('PaintInfo', () {
@@ -17,7 +17,7 @@ void main() {
 
       expect(paintInfo.mode, PaintMode.line);
       expect(paintInfo.offsets, [const Offset(10, 20), const Offset(30, 40)]);
-      expect(paintInfo.color.value, Colors.red.value);
+      expect(paintInfo.color, Colors.red);
       expect(paintInfo.strokeWidth, 5.0);
       expect(paintInfo.text, 'test');
       expect(paintInfo.fill, true);
@@ -33,7 +33,7 @@ void main() {
 
       final paint = paintInfo.paint;
 
-      expect(paint.color.value, Colors.blue.value);
+      expect(paint.color, Colors.blue);
       expect(paint.strokeWidth, 3.0);
       expect(paint.style, PaintingStyle.stroke);
     });
@@ -85,7 +85,7 @@ void main() {
 
       expect(clone.mode, original.mode);
       expect(clone.offsets, original.offsets);
-      expect(clone.color.value, original.color.value);
+      expect(clone.color, original.color);
       expect(clone.strokeWidth, original.strokeWidth);
       expect(clone.text, original.text);
       expect(clone.fill, original.fill);
@@ -93,3 +93,4 @@ void main() {
     });
   });
 }
+
