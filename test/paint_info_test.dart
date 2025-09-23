@@ -17,7 +17,7 @@ void main() {
 
       expect(paintInfo.mode, PaintMode.line);
       expect(paintInfo.offsets, [const Offset(10, 20), const Offset(30, 40)]);
-      expect(paintInfo.color, Colors.red);
+      expect(paintInfo.color.toARGB32(), Colors.red.toARGB32());
       expect(paintInfo.strokeWidth, 5.0);
       expect(paintInfo.text, 'test');
       expect(paintInfo.fill, true);
@@ -33,7 +33,7 @@ void main() {
 
       final paint = paintInfo.paint;
 
-      expect(paint.color, Colors.blue);
+      expect(paint.color.toARGB32(), Colors.blue.toARGB32());
       expect(paint.strokeWidth, 3.0);
       expect(paint.style, PaintingStyle.stroke);
     });
@@ -85,7 +85,7 @@ void main() {
 
       expect(clone.mode, original.mode);
       expect(clone.offsets, original.offsets);
-      expect(clone.color, original.color);
+      expect(clone.color.toARGB32(), original.color.toARGB32());
       expect(clone.strokeWidth, original.strokeWidth);
       expect(clone.text, original.text);
       expect(clone.fill, original.fill);

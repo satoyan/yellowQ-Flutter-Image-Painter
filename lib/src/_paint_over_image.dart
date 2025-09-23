@@ -552,7 +552,7 @@ class ImagePainterState extends State<ImagePainter>
 
   ///Dynamically sets stroke multiplier on the basis of widget size.
   ///Implemented to avoid thin stroke on high res images.
-  _setStrokeMultiplier() {
+  void _setStrokeMultiplier() {
     if ((_image!.height + _image!.width) > 1000) {
       _strokeMultiplier = (_image!.height + _image!.width) ~/ 1000;
     }
@@ -712,7 +712,7 @@ class ImagePainterState extends State<ImagePainter>
     );
   }
 
-  _scaleStartGesture(ScaleStartDetails onStart) {
+  void _scaleStartGesture(ScaleStartDetails onStart) {
     final _zoomAdjustedOffset =
         _transformationController.toScene(onStart.localFocalPoint);
     if (_controller.mode == PaintMode.move) {

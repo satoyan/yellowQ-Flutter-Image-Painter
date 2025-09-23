@@ -21,7 +21,6 @@ linter:
     # DOCUMENTATION
     slash_for_doc_comments: true
     public_member_api_docs: false
-    package_api_docs: true
 
     implementation_imports: true
     avoid_relative_lib_imports: true
